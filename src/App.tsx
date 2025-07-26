@@ -19,34 +19,9 @@ const COLUMNS = [
 function App() {
   const [jobs, setJobs] = useState<JobApplication[]>([])
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
   const [activeJob, setActiveJob] = useState<JobApplication | null>(null)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [editingJob, setEditingJob] = useState<JobApplication | null>(null)
-
-  // Authentication
-  useEffect(() => {
-    const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setUser(session?.user || null)
-      
-      if (!session?.user) {
-        // Redirect to auth if no user
-        window.location.href = 'https://blink.new/auth'
-      }
-    }
-
-    getSession()
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null)
-      if (!session?.user) {
-        window.location.href = 'https://blink.new/auth'
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
 
   const loadJobs = async () => {
     try {
@@ -67,19 +42,14 @@ function App() {
 
   // Load jobs
   useEffect(() => {
-    if (user) {
-      loadJobs()
-    }
-  }, [user])
+    loadJobs()
+  }, [])
 
   const handleAddJob = async (jobData: Partial<JobApplication>) => {
     try {
       const { data, error } = await supabase
         .from('job_applications')
-        .insert([{
-          ...jobData,
-          user_id: user.id,
-        }])
+        .insert([jobData])
         .select()
         .single()
 

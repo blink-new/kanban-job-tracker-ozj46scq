@@ -11,7 +11,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export type JobApplication = {
   id: string
-  user_id: string
+  user_id?: string
   company_name: string
   role_title: string
   status: 'applied' | 'interviewing' | 'offer' | 'rejected'
